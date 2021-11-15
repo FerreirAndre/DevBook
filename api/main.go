@@ -10,5 +10,5 @@ import (
 func main() {
 	fmt.Println("api iniciada")
 	r := router.Gerar()
-	log.Fatal(http.ListenAndServe("5000", r))
+	log.Fatal(http.ListenAndServe(":5000", r))
 }
