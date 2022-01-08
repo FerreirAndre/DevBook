@@ -8,9 +8,12 @@ import (
 	"net/http"
 )
 
+// go get github.com/gorilla/mux
+// go get github.com/go-sql-driver/mysql
+
 func main() {
 	config.Carregar()
 
-	fmt.Println("API Iniciada")
+	fmt.Println("API Iniciada", config.Porta)
 	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%d", config.Porta), router.Gerar()))
 }
