@@ -16,15 +16,15 @@ type Usuario struct {
 }
 
 //Preparar chama os metodos para verificar se os dados estão no formato correto para a API
-func (usuario *Usuario) Preparar() error {
+func (usuario *Usuario) Preparar(etapa string) error {
 	usuario.formatar()
-	if erro := usuario.validar(); erro != nil {
+	if erro := usuario.validar(etapa); erro != nil {
 		return erro
 	}
 	return nil
 }
 
-func (usuario *Usuario) validar() error {
+func (usuario *Usuario) validar(etapa string) error {
 	if usuario.Nome == "" {
 		return errors.New("o nome é obrigatório, não pode estar em branco")
 	}
@@ -34,7 +34,7 @@ func (usuario *Usuario) validar() error {
 	if usuario.Email == "" {
 		return errors.New("o email é obrigatório, não pode estar em branco")
 	}
-	if usuario.Senha == "" {
+	if usuario.Senha == "" && etapa == "cadastro" {
 		return errors.New("o senha é obrigatória, não pode estar em branco")
 	}
 
