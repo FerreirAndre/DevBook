@@ -14,6 +14,7 @@ func NovoRepositorioUsuarios(db *sql.DB) *usuarios {
 	return &usuarios{db}
 }
 
+// Cria e insere um usuario no banco de dados
 func (repositorio usuarios) Criar(usuario modelos.Usuario) (uint64, error) {
 	statement, erro := repositorio.db.Prepare("INSERT INTO usuarios(nome, nick, email, senha) VALUES(?, ?, ?, ?)")
 	if erro != nil {
@@ -33,6 +34,7 @@ func (repositorio usuarios) Criar(usuario modelos.Usuario) (uint64, error) {
 	return uint64(ultimoIdInserido), nil
 }
 
+// Faz a busca no banco de dados pelo nome ou nick do usuario
 func (repositorio usuarios) Buscar(nomeOunick string) ([]modelos.Usuario, error) {
 	nomeOunick = fmt.Sprintf("%%%s%%", nomeOunick)
 
@@ -64,6 +66,7 @@ func (repositorio usuarios) Buscar(nomeOunick string) ([]modelos.Usuario, error)
 	return usuarios, nil
 }
 
+// Faz a busca no banco de dados pelo id.
 func (repositorio usuarios) BuscarPorId(id uint64) (modelos.Usuario, error) {
 	linhas, erro := repositorio.db.Query(
 		"SELECT id, nome, nick, email, criadoEm FROM usuarios WHERE id=?",
@@ -90,6 +93,23 @@ func (repositorio usuarios) BuscarPorId(id uint64) (modelos.Usuario, error) {
 	return usuario, nil
 }
 
+func (repositorio usuarios) BuscarPorEmail(email string) (modelos.Usuario, error) {
+	linha, erro := repositorio.db.Query("SELECT id, senha FROM usuarios WHERE email=?;", email)
+	if erro != nil {
+		return modelos.Usuario{}, erro
+	}
+	defer linha.Close()
+
+	var usuario modelos.Usuario
+	if linha.Next() {
+		if erro = linha.Scan(&usuario.ID, &usuario.Senha); erro != nil {
+			return modelos.Usuario{}, erro
+		}
+	}
+	return usuario, nil
+}
+
+// Altera nome, nick e/ou email do usuario.
 func (repositorio usuarios) Atualizar(Id uint64, usuario modelos.Usuario) error {
 	statement, erro := repositorio.db.Prepare(
 		"UPDATE usuarios SET nome = ?, nick = ?, email = ? WHERE id = ?;",
@@ -104,6 +124,7 @@ func (repositorio usuarios) Atualizar(Id uint64, usuario modelos.Usuario) error 
 	return nil
 }
 
+// Remove o usuario do banco de dados
 func (repositorio usuarios) Deletar(id uint64) error {
 	statement, erro := repositorio.db.Prepare("DELETE FROM usuarios WHERE id = ?;")
 	if erro != nil {
