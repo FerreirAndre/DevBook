@@ -1,12 +1,14 @@
 package controllers
 
 import (
+	"api/src/autenticacao"
 	"api/src/banco"
 	"api/src/modelos"
 	"api/src/repositorios"
 	"api/src/respostas"
 	"api/src/seguranca"
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"net/http"
 )
@@ -33,14 +35,17 @@ func Login(w http.ResponseWriter, r *http.Request) {
 
 	repositorio := repositorios.NovoRepositorioUsuarios(db)
 	usuarioSalvoBanco, erro := repositorio.BuscarPorEmail(usuario.Email)
-	if erro!=nil{
-		respostas.Erro(w,http.StatusInternalServerError,erro)
+	if erro != nil {
+		respostas.Erro(w, http.StatusInternalServerError, erro)
 		return
 	}
 
-	if erro = seguranca.VerificarSenha(usuarioSalvoBanco.Senha, usuario.Senha);erro!=nil{
-		respostas.Erro(w,http.StatusUnauthorized,erro)
+	if erro = seguranca.VerificarSenha(usuarioSalvoBanco.Senha, usuario.Senha); erro != nil {
+		respostas.Erro(w, http.StatusUnauthorized, erro)
 		return
 	}
-	w.Write([]byte("você está logado!"))
+
+	token, _ := autenticacao.CriarToken(usuarioSalvoBanco.ID)
+	fmt.Println(token)
+	w.Write([]byte(token))
 }
