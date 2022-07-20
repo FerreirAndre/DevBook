@@ -20,7 +20,6 @@ type Usuario struct {
 
 //Preparar chama os metodos para verificar se os dados estão no formato correto para a API
 func (usuario *Usuario) Preparar(etapa string) error {
-	usuario.formatar(etapa)
 	if erro := usuario.validar(etapa); erro != nil {
 		return erro
 	}
