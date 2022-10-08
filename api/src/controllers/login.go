@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"api/src/autenticacao"
 	"api/src/banco"
 	"api/src/modelos"
 	"api/src/repositorios"
@@ -18,8 +19,8 @@ func Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var usuario1 modelos.Usuario
-	if erro = json.Unmarshal(corpoRequisicao, &usuario1); erro != nil {
+	var usuario modelos.Usuario
+	if erro = json.Unmarshal(corpoRequisicao, &usuario); erro != nil {
 		respostas.Erro(w, http.StatusBadRequest, erro)
 		return
 	}
@@ -33,16 +34,17 @@ func Login(w http.ResponseWriter, r *http.Request) {
 
 	repositorio := repositorios.NovoRepositorioUsuarios(db)
 
-	usuarioSalvoBanco, erro := repositorio.BuscarPorEmail(usuario1.Email)
+	usuarioSalvoBanco, erro := repositorio.BuscarPorEmail(usuario.Email)
 	if erro != nil {
 		respostas.Erro(w, http.StatusInternalServerError, erro)
 		return
 	}
 
-	if erro = seguranca.VerificarSenha(usuarioSalvoBanco.Senha, usuario1.Senha); erro != nil {
+	if erro = seguranca.VerificarSenha(usuarioSalvoBanco.Senha, usuario.Senha); erro != nil {
 		respostas.Erro(w, http.StatusUnauthorized, erro)
 		return
 	}
 
-	w.Write([]byte("logado ;)"))
+	token, _ := autenticacao.CriarToken(usuarioSalvoBanco.ID)
+	w.Write([]byte(token))
 }

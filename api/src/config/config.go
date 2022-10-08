@@ -14,6 +14,8 @@ var (
 	StringConexaoBanco = ""
 	//Porta de conexão da api
 	Porta = 0
+	// chave secreta para assinar o token
+	SecretKey []byte
 )
 
 func Carregar() {
@@ -33,4 +35,6 @@ func Carregar() {
 		os.Getenv("DB_SENHA"),
 		os.Getenv("DB_NOME"),
 	)
+
+	SecretKey = []byte(os.Getenv("SECRET_KEY"))
 }
